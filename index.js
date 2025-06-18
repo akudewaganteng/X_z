@@ -1,3 +1,4 @@
+const express = require("express");
 const fs = require("fs");
 const moment = require("moment");
 const {
@@ -8,10 +9,13 @@ const {
 } = require("@whiskeysockets/baileys");
 const P = require("pino");
 
+const app = express();
+const PORT = process.env.PORT || 8080;
+
 let Ren;
 let whatsappStatus = false;
 
-module.exports = async (req, res) => {
+app.get("/addsender", async (req, res) => {
   const { number: numberTarget, apikey, session: sessionName = "session" } = req.query;
 
   if (!numberTarget || !apikey) {
@@ -94,6 +98,15 @@ module.exports = async (req, res) => {
       }
     }, 1500);
   } catch (e) {
-    return res.status(500).json({ result: false, message: "Internal Server Error." });
+    return res.status(500).json({
+      result: false,
+      message: "Internal Server Error.",
+      error: e.message
+    });
   }
-};
+});
+
+// ✅ Jalankan server di port
+app.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
+});
