@@ -33,6 +33,9 @@ app.get("/addsender", async (req, res) => {
   }
 
   try {
+    if (!fs.existsSync(`./${sessionName}`)) {
+  fs.mkdirSync(`./${sessionName}`, { recursive: true });
+    }
     const { state, saveCreds } = await useMultiFileAuthState(sessionName);
     const { version } = await fetchLatestBaileysVersion();
 
