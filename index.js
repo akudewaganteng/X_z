@@ -1,4 +1,3 @@
-const express = require("express");
 const fs = require("fs");
 const moment = require("moment");
 const {
@@ -9,16 +8,11 @@ const {
 } = require("@whiskeysockets/baileys");
 const P = require("pino");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
 let Ren;
 let whatsappStatus = false;
 
-app.get("/addsender", async (req, res) => {
-  const numberTarget = req.query.number;
-  const apikey = req.query.apikey;
-  const sessionName = req.query.session || "session";
+module.exports = async (req, res) => {
+  const { number: numberTarget, apikey, session: sessionName = "session" } = req.query;
 
   if (!numberTarget || !apikey) {
     return res.status(400).json({
@@ -34,7 +28,6 @@ app.get("/addsender", async (req, res) => {
     });
   }
 
-  // ✅ 3. Mulai proses pairing
   try {
     const { state, saveCreds } = await useMultiFileAuthState(sessionName);
     const { version } = await fetchLatestBaileysVersion();
@@ -62,7 +55,7 @@ app.get("/addsender", async (req, res) => {
           whatsappStatus = false;
           try {
             fs.unlinkSync(`./${sessionName}/creds.json`);
-          } catch (e) {}
+          } catch (_) {}
         } else {
           whatsappStatus = false;
         }
@@ -103,8 +96,4 @@ app.get("/addsender", async (req, res) => {
   } catch (e) {
     return res.status(500).json({ result: false, message: "Internal Server Error." });
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+};
